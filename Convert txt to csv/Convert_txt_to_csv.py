@@ -1,31 +1,43 @@
+import os
+import pandas as pd
 
-t = 1603
-path = r"D:\1. Project\Design data\res-" + str(t) + ".lst"
-t1 = 1603-1
-path1 = r"D:\1. Project\Design data\res-" + str(t1) + ".lst"
+src = "C:\\1"
+file = [os.path.join(src,f) for f in os.listdir(src)]
+print(file)
 
-f = open(path, "r").readlines()
-f1 = open(path1, "a+")
+Vy_list = []
+for file_i in file:
+    if '.lst' in file_i:
+        # dir
+        print(file_i)
+        # Excel sheet name
+        sheetName = file_i[len(file_i)-12:len(file_i)-4]
 
-#print(f.read())
+        f = open(file_i, 'r')
+        f = f.read().split("\n")
 
-#print(type(f))
+        Excel_dir = os.makedirs(src + "\Data_excel", exist_ok= True)
 
-GetValue = False
+        # Find data value, delete unnecessary data
+        for fi in f:
+            if fi == "       No        VX        VY        VZ     PHI-X     PHI-Y     PHI-Z":
+                f = f[f.index(fi)+2:]
 
-for lst_i in range(len(f)):
+        # Choose Node, Vy
+        new_lst = []
+        for fi in f:
+            new_lst.append([fi.split()[0], fi.split()[2]])
 
-    if f[lst_i].split() != []:
+        # Add new data to Vy_list
+        if Vy_list == []:
+            Vy_list = new_lst
+        else:
+            for i in Vy_list:
+                i.append(new_lst[Vy_list.index(i)][1])
 
-        if str(f[lst_i].split()[0]) == "RESULTS" and str(f[lst_i].split()[2]) == "NODE" and str(f[lst_i].split()[3]) == "DISPLACEMENT":
-            lst_start = lst_i + 3
-
-for lst_i in range(lst_start,len(f)):
-
-    if f[lst_i].split() != []:
-        #for i in range(len(f[lst_i].split()[0])):
-        #    f1.write(str(f[lst_i].split()[i]))
-
-        f1.writelines(f[lst_i].split())
-        
-            #print(str(f[lst_i].split()))
+# Export data to excel
+#print(Vy_list)
+df_data = pd.DataFrame(Vy_list)
+path = 'C:\\1\Data_excel\Data.xlsx'
+df_data.to_excel(path)
+print("Da xuat DL thanh cong")
